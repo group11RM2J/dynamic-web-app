@@ -3,37 +3,40 @@ import { User } from '@/types/user';
 import { Post } from '@/types/post';
 import { Comment } from '@/types/comment';
 
-// USERS
-// src/lib/api.ts
+const BASE_URL = 'https://jsonplaceholder.typicode.com';
 
-export async function getUsers() {
-  const res = await fetch('https://jsonplaceholder.typicode.com/users');
-  if (!res.ok) throw new Error('Failed to fetch users');
+export const fetchUsers = async (): Promise<User[]> => {
+  const res = await fetch(`${BASE_URL}/users`);
   return res.json();
-}
+};
 
-export async function getUser(id: string) {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`);
-  if (!res.ok) return null;
+export const fetchUserById = async (id: string): Promise<User> => {
+  const res = await fetch(`${BASE_URL}/users/${id}`);
   return res.json();
-}
+};
 
-// POSTS
-export async function getUserPosts(userId: string) {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${userId}`);
+export const fetchPosts = async (): Promise<Post[]> => {
+  const res = await fetch(`${BASE_URL}/posts`);
+  return res.json();
+};
+
+export const getPosts = async (userId?: string): Promise<Post[]> => {
+  const res = await fetch(
+    userId
+      ? `https://jsonplaceholder.typicode.com/posts?userId=${userId}`
+      : `https://jsonplaceholder.typicode.com/posts`
+  );
   if (!res.ok) throw new Error('Failed to fetch posts');
-  return res.json();
-}
-
-export async function getPostComments(postId: string) {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/comments?postId=${postId}`);
-  if (!res.ok) throw new Error('Failed to fetch comments');
-  return res.json();
-}
-
-export const fetchCommentsByPostId = async (postId: string): Promise<Comment[]> => {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${postId}/comments`);
   return res.json();
 };
 
 
+export const fetchPostById = async (id: string): Promise<Post> => {
+  const res = await fetch(`${BASE_URL}/posts/${id}`);
+  return res.json();
+};
+
+export const fetchCommentsByPostId = async (postId: string): Promise<Comment[]> => {
+  const res = await fetch(`${BASE_URL}/posts/${postId}/comments`);
+  return res.json();
+};
