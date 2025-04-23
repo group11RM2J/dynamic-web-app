@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import UserPosts from './UserPosts';
+import UserMap from '@/components/UserMap';
 
 interface User {
   id: number;
@@ -8,8 +9,19 @@ interface User {
   email: string;
   phone: string;
   website: string;
-  address: { city: string };
-  company: { name: string };
+  address: { 
+    street: string;
+    suite: string;
+    city: string;
+    zipcode: string;
+  geo: {
+    lat: string;
+    lng: string;
+  }
+  company: {
+    name: string;
+}
+  }
 }
 
 interface Post {
@@ -36,21 +48,27 @@ export default async function UserProfile({ params }: { params: { id: string } }
   if (!user) return notFound();
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{user.name}</h1>
-        <p className="text-gray-600">@{user.username}</p>
-        <p>Email: {user.email}</p>
-        <p>Phone: {user.phone}</p>
-        <p>Website: {user.website}</p>
-        <p>Company: {user.company.name}</p>
-        <p>City: {user.address.city}</p>
-      </div>
 
-      <div>
-        <h2 className="text-xl font-semibold">Posts</h2>
-        <UserPosts posts={posts} />
+      <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold">{user.name}</h1>
+          <p className="text-gray-600">@{user.username}</p>
+          <p>Email: {user.email}</p>
+          <p>Phone: {user.phone}</p>
+          <p>Website: {user.website}</p>
+          <p>City: {user.address.city}</p>
+        </div>
+    
+        {/* 🔍 Map showing user address */}
+        <div>
+          <h2 className="text-lg font-semibold mb-2">User Location</h2>
+          <UserMap lat={parseFloat(user.address.geo.lat)} lng={parseFloat(user.address.geo.lng)} />
+        </div>
+    
+        <div>
+          <h2 className="text-xl font-semibold">Posts</h2>
+          <UserPosts posts={posts} />
+        </div>
       </div>
-    </div>
-  );
+    );
 }
