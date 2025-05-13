@@ -1,9 +1,11 @@
 // src/app/api/auth/[...nextauth]/route.ts
-import NextAuth from "next-auth/next";
+
+import NextAuth, { AuthOptions, SessionStrategy } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
 import { Session, User } from "next-auth";
 
+// Extend the default User type to include our custom fields
 declare module "next-auth" {
   interface User {
     username?: string;
@@ -11,6 +13,7 @@ declare module "next-auth" {
   }
 }
 
+// Define our complete user type
 type AppUser = {
   id: string;
   name: string;
@@ -19,11 +22,12 @@ type AppUser = {
   isAdmin: boolean;
 };
 
+// Extend the default JWT type
 interface AppJWT extends JWT {
   user?: AppUser;
 }
 
-export const authOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -35,6 +39,7 @@ export const authOptions = {
         const res = await fetch("https://jsonplaceholder.typicode.com/users");
         const users: AppUser[] = await res.json();
 
+        // Admin credentials check
         if (
           credentials?.email === "admin@admin.com" &&
           credentials.password === "admin123"
@@ -48,6 +53,7 @@ export const authOptions = {
           };
         }
 
+        // Regular user login
         const user = users.find(
           (user) =>
             user.email === credentials?.email &&
@@ -71,11 +77,9 @@ export const authOptions = {
   pages: {
     signIn: "/login",
   },
-import type { SessionStrategy } from "next-auth";
-
-session: {
-  strategy: "jwt" as SessionStrategy,
-},
+  session: {
+    strategy: "jwt" as SessionStrategy,
+  },
   callbacks: {
     async jwt({ token, user }: { token: AppJWT; user?: User }) {
       if (user) {
