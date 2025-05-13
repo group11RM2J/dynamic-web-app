@@ -1,10 +1,11 @@
 // src/app/api/auth/[...nextauth]/route.ts
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import NextAuth from "next-auth/next"; // ✅ v5+ syntax
+import Credentials from "next-auth/providers/credentials";
+import type { NextAuthConfig } from "next-auth";
+import { User, Session } from "next-auth";
 import { JWT } from "next-auth/jwt";
-import { Session, User } from "next-auth";
 
-// Extend default User type
+// Extend User type
 declare module "next-auth" {
   interface User {
     username?: string;
@@ -12,7 +13,6 @@ declare module "next-auth" {
   }
 }
 
-// Custom user type
 type AppUser = {
   id: string;
   name: string;
@@ -21,14 +21,13 @@ type AppUser = {
   isAdmin: boolean;
 };
 
-// Extend JWT type
 interface AppJWT extends JWT {
   user?: AppUser;
 }
 
-const authOptions = {
+export const authConfig = {
   providers: [
-    CredentialsProvider({
+    Credentials({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text" },
@@ -38,7 +37,6 @@ const authOptions = {
         const res = await fetch("https://jsonplaceholder.typicode.com/users");
         const users: AppUser[] = await res.json();
 
-        // Hardcoded admin
         if (
           credentials?.email === "admin@admin.com" &&
           credentials.password === "admin123"
@@ -83,9 +81,9 @@ const authOptions = {
       if (user) {
         token.user = {
           id: user.id,
-          name: user.name || '',
-          email: user.email || '',
-          username: user.username || '',
+          name: user.name || "",
+          email: user.email || "",
+          username: user.username || "",
           isAdmin: user.isAdmin || false,
         };
       }
@@ -101,8 +99,9 @@ const authOptions = {
       return session;
     },
   },
-};
+} satisfies NextAuthConfig;
 
-const handler = NextAuth(authOptions);
+// ✅ export handlers for API routes
+const handler = NextAuth(authConfig);
 
 export { handler as GET, handler as POST };
