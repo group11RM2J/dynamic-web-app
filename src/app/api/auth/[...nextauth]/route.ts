@@ -1,30 +1,26 @@
-import NextAuth from "next-auth/next";
+// src/app/api/auth/[...nextauth]/route.ts
+import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { User, Session } from "next-auth";
-import { JWT } from "next-auth/jwt";
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 
-// Extend User type
 declare module "next-auth" {
   interface User {
     username?: string;
     isAdmin?: boolean;
   }
+
+  interface Session {
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      username: string;
+      isAdmin: boolean;
+    } & DefaultSession["user"];
+  }
 }
 
-type AppUser = {
-  id: string;
-  name: string;
-  email: string;
-  username: string;
-  isAdmin: boolean;
-};
-
-interface AppJWT extends JWT {
-  user?: AppUser;
-}
-
-export const authConfig: NextAuthOptions = {
+const authConfig: NextAuthConfig = {
   providers: [
     Credentials({
       name: "Credentials",
@@ -33,39 +29,47 @@ export const authConfig: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const res = await fetch("https://jsonplaceholder.typicode.com/users");
-        const users: AppUser[] = await res.json();
+        try {
+          // Mock API call - replace with your actual authentication logic
+          const res = await fetch("https://jsonplaceholder.typicode.com/users");
+          const users = await res.json();
 
-        if (
-          credentials?.email === "admin@admin.com" &&
-          credentials.password === "admin123"
-        ) {
-          return {
-            id: "0",
-            name: "Admin",
-            email: "admin@admin.com",
-            username: "admin",
-            isAdmin: true,
-          };
+          // Admin user check
+          if (
+            credentials?.email === "admin@admin.com" &&
+            credentials.password === "admin123"
+          ) {
+            return {
+              id: "0",
+              name: "Admin",
+              email: "admin@admin.com",
+              username: "admin",
+              isAdmin: true,
+            };
+          }
+
+          // Regular user check
+          const user = users.find(
+            (user: any) =>
+              user.email === credentials?.email &&
+              user.username === credentials?.password
+          );
+
+          if (user) {
+            return {
+              id: String(user.id),
+              name: user.name,
+              email: user.email,
+              username: user.username,
+              isAdmin: false,
+            };
+          }
+
+          return null;
+        } catch (error) {
+          console.error("Authentication error:", error);
+          return null;
         }
-
-        const user = users.find(
-          (user) =>
-            user.email === credentials?.email &&
-            user.username === credentials?.password
-        );
-
-        if (user) {
-          return {
-            id: String(user.id),
-            name: user.name,
-            email: user.email,
-            username: user.username,
-            isAdmin: false,
-          };
-        }
-
-        return null;
       },
     }),
   ],
@@ -73,32 +77,31 @@ export const authConfig: NextAuthOptions = {
     signIn: "/login",
   },
   session: {
-    strategy: "jwt" as const, // Explicitly type as "jwt"
+    strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }: { token: AppJWT; user?: User }) {
+    async jwt({ token, user }) {
       if (user) {
-        token.user = {
-          id: user.id,
-          name: user.name || "",
-          email: user.email || "",
-          username: user.username || "",
-          isAdmin: user.isAdmin || false,
-        };
+        token.id = user.id;
+        token.username = user.username;
+        token.isAdmin = user.isAdmin;
       }
       return token;
     },
-    async session({ session, token }: { session: Session; token: AppJWT }) {
-      if (token.user) {
-        session.user = {
-          ...session.user,
-          ...token.user,
-        };
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.id = token.id as string;
+        session.user.username = token.username as string;
+        session.user.isAdmin = token.isAdmin as boolean;
       }
       return session;
     },
   },
 };
 
-const handler = NextAuth(authConfig);
-export { handler as GET, handler as POST };
+export const {
+  handlers: { GET, POST },
+  auth,
+  signIn,
+  signOut,
+} = NextAuth(authConfig);
