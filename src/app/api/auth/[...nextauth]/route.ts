@@ -3,7 +3,15 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
 import { Session, User } from "next-auth";
 
-// Define user type
+// Extend the default User type to include our custom fields
+declare module "next-auth" {
+  interface User {
+    username?: string;
+    isAdmin?: boolean;
+  }
+}
+
+// Define our complete user type
 type AppUser = {
   id: string;
   name: string;
@@ -12,12 +20,11 @@ type AppUser = {
   isAdmin: boolean;
 };
 
-// Extend the default JWT type to include our custom user type
+// Extend the default JWT type
 interface AppJWT extends JWT {
   user?: AppUser;
 }
 
-// Do NOT export this - just use it inside the handler
 const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
@@ -76,8 +83,8 @@ const authOptions: AuthOptions = {
           id: user.id,
           name: user.name || '',
           email: user.email || '',
-          username: (user as any).username || '', // Temporary any until we extend User type
-          isAdmin: (user as any).isAdmin || false,
+          username: user.username || '',
+          isAdmin: user.isAdmin || false,
         };
       }
       return token;
@@ -96,5 +103,4 @@ const authOptions: AuthOptions = {
 
 const handler = NextAuth(authOptions);
 
-// Only export GET and POST
 export { handler as GET, handler as POST };
