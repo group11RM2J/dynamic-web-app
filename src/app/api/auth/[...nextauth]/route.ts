@@ -1,5 +1,4 @@
 import NextAuth from "next-auth";
-import type { NextAuthOptions, SessionStrategy } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
 import { Session, User } from "next-auth";
@@ -26,7 +25,7 @@ interface AppJWT extends JWT {
   user?: AppUser;
 }
 
-const authOptions: NextAuthOptions = {
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -75,7 +74,7 @@ const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
   session: {
-    strategy: "jwt" as SessionStrategy,
+    strategy: "jwt",
   },
   callbacks: {
     async jwt({ token, user }: { token: AppJWT; user?: User }) {
