@@ -2,8 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link'; // ✅ Import Link
+import Link from 'next/link';
 import axios from 'axios';
+
+type User = {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+};
 
 const LoginPage = () => {
   const router = useRouter();
@@ -22,10 +29,10 @@ const LoginPage = () => {
       router.push('/dashboard');
     } else {
       try {
-        const res = await axios.get('https://jsonplaceholder.typicode.com/users');
+        const res = await axios.get<User[]>('https://jsonplaceholder.typicode.com/users');
         const users = res.data;
 
-        const user = users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+        const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
 
         if (user && password === user.username) {
           localStorage.setItem('user', JSON.stringify({
@@ -71,10 +78,8 @@ const LoginPage = () => {
         >
           Login
         </button>
-
-        {/* ✅ Register Link using Next.js Link */}
         <p className="text-center mt-4 text-sm">
-          Don&apost have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/register" className="text-blue-600 hover:underline">
             Register here
           </Link>
@@ -85,3 +90,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+          
