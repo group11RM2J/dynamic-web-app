@@ -1,7 +1,6 @@
-// src/app/api/auth/[...nextauth]/route.ts
 import NextAuth from "next-auth/next"; // ✅ v5+ syntax
 import Credentials from "next-auth/providers/credentials";
-import type { NextAuthConfig } from "next-auth";
+import type { AuthOptions } from "next-auth";
 import { User, Session } from "next-auth";
 import { JWT } from "next-auth/jwt";
 
