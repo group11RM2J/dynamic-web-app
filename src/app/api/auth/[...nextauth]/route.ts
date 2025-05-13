@@ -17,11 +17,6 @@ interface AppJWT extends JWT {
   user?: AppUser;
 }
 
-// Extend the default Session type
-interface AppSession extends Session {
-  user: AppUser;
-}
-
 // Do NOT export this - just use it inside the handler
 const authOptions: AuthOptions = {
   providers: [
@@ -81,8 +76,8 @@ const authOptions: AuthOptions = {
           id: user.id,
           name: user.name || '',
           email: user.email || '',
-          username: user.username || '',
-          isAdmin: false,
+          username: (user as any).username || '', // Temporary any until we extend User type
+          isAdmin: (user as any).isAdmin || false,
         };
       }
       return token;
@@ -90,11 +85,8 @@ const authOptions: AuthOptions = {
     async session({ session, token }: { session: Session; token: AppJWT }) {
       if (token.user) {
         session.user = {
-          id: token.user.id,
-          name: token.user.name,
-          email: token.user.email,
-          username: token.user.username,
-          isAdmin: token.user.isAdmin,
+          ...session.user,
+          ...token.user,
         };
       }
       return session;
