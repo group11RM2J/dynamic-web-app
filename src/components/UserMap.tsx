@@ -20,7 +20,7 @@ const UserMap = ({ lat, lng }: UserMapProps) => {
         map.current = new mapboxgl.Map({
             container: mapContainerRef.current,
             style: 'mapbox://styles/mapbox/streets-v11',
-            center: [lng, lat], // Use exact user location
+            center: [lng, lat],
             zoom: 12,
           })
       

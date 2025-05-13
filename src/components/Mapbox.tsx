@@ -1,9 +1,9 @@
 'use client';
 
-import Map, { Marker, NavigationControl } from 'react-map-gl';
+import Map, { Marker, NavigationControl, MapMouseEvent } from 'react-map-gl';
 import { useState } from 'react';
 
-const MAPBOX_TOKEN = "your_mapbox_access_token_here"; // Replace with your actual token
+const MAPBOX_TOKEN = "pk.eyJ1IjoibGFicy1zYW5kYm94IiwiYSI6ImNrMTZuanRmZDA2eGQzYmxqZTlnd21qY3EifQ.Q7DM5HqE5QJzDEnCx8BGFw"; // Replace with your actual token
 
 type Props = {
   setAddress: (address: string) => void;
@@ -30,8 +30,8 @@ export default function Mapbox({ setAddress }: Props) {
     setAddress(place);
   };
 
-  const handleMapClick = (e: any) => {
-    const [lng, lat] = e.lngLat;
+  const handleMapClick = (e: MapMouseEvent) => {
+    const {lng, lat} = e.lngLat;
     setMarker({ latitude: lat, longitude: lng });
     setViewport((prev) => ({
       ...prev,
