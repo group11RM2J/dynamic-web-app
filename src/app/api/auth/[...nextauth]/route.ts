@@ -71,9 +71,11 @@ export const authOptions = {
   pages: {
     signIn: "/login",
   },
-  session: {
-    strategy: "jwt",
-  },
+import type { SessionStrategy } from "next-auth";
+
+session: {
+  strategy: "jwt" as SessionStrategy,
+},
   callbacks: {
     async jwt({ token, user }: { token: AppJWT; user?: User }) {
       if (user) {
