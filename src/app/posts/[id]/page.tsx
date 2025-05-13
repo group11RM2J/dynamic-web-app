@@ -50,10 +50,13 @@ async function getCommentsByPost(postId: number): Promise<Comment[]> {
   return res.json();
 }
 
-// ✅ Proper typing for Next.js App Router dynamic route
+// Updated PageProps interface to match Next.js expectations
 interface PageProps {
   params: {
     id: string;
+  };
+  searchParams?: {
+    [key: string]: string | string[] | undefined;
   };
 }
 
