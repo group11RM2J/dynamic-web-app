@@ -1,9 +1,9 @@
-import NextAuth from "next-auth";
+// src/app/api/auth/[...nextauth]/route.ts
+import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
 import { Session, User } from "next-auth";
 
-// Extend the default User type to include our custom fields
 declare module "next-auth" {
   interface User {
     username?: string;
@@ -11,7 +11,6 @@ declare module "next-auth" {
   }
 }
 
-// Define our complete user type
 type AppUser = {
   id: string;
   name: string;
@@ -20,7 +19,6 @@ type AppUser = {
   isAdmin: boolean;
 };
 
-// Extend the default JWT type
 interface AppJWT extends JWT {
   user?: AppUser;
 }
