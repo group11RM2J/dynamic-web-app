@@ -1,3 +1,4 @@
+// ✅ All imports go at the top
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -22,7 +23,6 @@ export const authOptions: NextAuthOptions = {
         const res = await fetch("https://jsonplaceholder.typicode.com/users");
         const users: AppUser[] = await res.json();
 
-        // Admin check
         if (
           credentials?.email === "admin@admin.com" &&
           credentials.password === "admin123"
@@ -36,7 +36,6 @@ export const authOptions: NextAuthOptions = {
           };
         }
 
-        // Normal user check
         const user = users.find(
           (user) =>
             user.email === credentials?.email &&
@@ -77,87 +76,6 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
+// ✅ Use authOptions with NextAuth and export routes
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
-import NextAuth, { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-
-// Define the shape of the user object
-type AppUser = {
-  id: string;
-  name: string;
-  email: string;
-  username: string;
-  isAdmin: boolean;
-};
-
-export const authOptions: NextAuthOptions = {
-  providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        const res = await fetch("https://jsonplaceholder.typicode.com/users");
-        const users: AppUser[] = await res.json();
-
-        // Admin check
-        if (
-          credentials?.email === "admin@admin.com" &&
-          credentials.password === "admin123"
-        ) {
-          return {
-            id: "0",
-            name: "Admin",
-            email: "admin@admin.com",
-            username: "admin",
-            isAdmin: true,
-          };
-        }
-
-        // Normal user check
-        const user = users.find(
-          (user) =>
-            user.email === credentials?.email &&
-            user.username === credentials?.password
-        );
-
-        if (user) {
-          return {
-            id: String(user.id),
-            name: user.name,
-            email: user.email,
-            username: user.username,
-            isAdmin: false,
-          };
-        }
-
-        return null;
-      },
-    }),
-  ],
-  pages: {
-    signIn: "/login",
-  },
-  session: {
-    strategy: "jwt",
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.user = user as AppUser;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      session.user = token.user as AppUser;
-      return session;
-    },
-  },
-};
-
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
-  
