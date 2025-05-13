@@ -1,8 +1,7 @@
-// ✅ All imports go at the top
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-// Define the shape of the user object
+// Define user type
 type AppUser = {
   id: string;
   name: string;
@@ -11,7 +10,8 @@ type AppUser = {
   isAdmin: boolean;
 };
 
-export const authOptions: NextAuthOptions = {
+// Do NOT export this - just use it inside the handler
+const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -76,6 +76,7 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-// ✅ Use authOptions with NextAuth and export routes
 const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+
+// ✅ Only export GET and POST — not authOptions
+export { handler as GET, handler as POST }
