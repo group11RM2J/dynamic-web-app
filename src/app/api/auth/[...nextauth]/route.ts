@@ -1,5 +1,6 @@
 import NextAuth from "next-auth/next";
 import Credentials from "next-auth/providers/credentials";
+import type { AuthOptions } from "next-auth";
 import { User, Session } from "next-auth";
 import { JWT } from "next-auth/jwt";
 
@@ -23,7 +24,7 @@ interface AppJWT extends JWT {
   user?: AppUser;
 }
 
-export const authConfig = {
+export const authConfig: AuthOptions = {
   providers: [
     Credentials({
       name: "Credentials",
@@ -97,9 +98,8 @@ export const authConfig = {
       return session;
     },
   },
-} satisfies NextAuthConfig;
+};
 
-// ✅ export handlers for API routes
 const handler = NextAuth(authConfig);
 
 export { handler as GET, handler as POST };
