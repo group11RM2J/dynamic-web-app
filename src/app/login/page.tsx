@@ -74,7 +74,7 @@ const LoginPage = () => {
 
         {/* ✅ Register Link using Next.js Link */}
         <p className="text-center mt-4 text-sm">
-          Don't have an account?{' '}
+          Don&apost have an account?{' '}
           <Link href="/register" className="text-blue-600 hover:underline">
             Register here
           </Link>
