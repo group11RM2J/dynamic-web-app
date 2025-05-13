@@ -1,5 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { JWT } from "next-auth/jwt";
+import { Session, User } from "next-auth";
 
 // Define user type
 type AppUser = {
@@ -9,6 +11,16 @@ type AppUser = {
   username: string;
   isAdmin: boolean;
 };
+
+// Extend the default JWT type to include our custom user type
+interface AppJWT extends JWT {
+  user?: AppUser;
+}
+
+// Extend the default Session type
+interface AppSession extends Session {
+  user: AppUser;
+}
 
 // Do NOT export this - just use it inside the handler
 const authOptions = {
@@ -63,13 +75,13 @@ const authOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: AppJWT; user?: User }) {
       if (user) {
         token.user = user as AppUser;
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: AppSession; token: AppJWT }) {
       session.user = token.user as AppUser;
       return session;
     },
@@ -79,4 +91,4 @@ const authOptions = {
 const handler = NextAuth(authOptions);
 
 // ✅ Only export GET and POST — not authOptions
-export { handler as GET, handler as POST }
+export { handler as GET, handler as POST };
