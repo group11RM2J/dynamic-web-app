@@ -1,21 +1,7 @@
 import NextAuth, { type AuthOptions, type SessionStrategy } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
-import { Session, JWT } from "next-auth";
-import { AdapterUser } from "next-auth/adapters";
-
-async function session({
-  session,
-  token,
-  user,
-}: {
-  session: Session;
-  token: JWT;
-  user: AdapterUser;
-} & { newSession: any; trigger: "update" }): Promise<Session> {
-  session.user = token.user as AppUser; // Ensure token.user is properly typed
-  return session;
-}
+import { Session, User } from "next-auth";
 
 // Define user type
 type AppUser = {
@@ -86,17 +72,31 @@ const authOptions: AuthOptions = {
     signIn: "/login",
   },
   session: {
-    strategy: "jwt" as SessionStrategy, // Explicitly type this as SessionStrategy
+    strategy: "jwt" as SessionStrategy,
   },
   callbacks: {
     async jwt({ token, user }: { token: AppJWT; user?: User }) {
       if (user) {
-        token.user = user as AppUser;
+        token.user = {
+          id: user.id,
+          name: user.name || '',
+          email: user.email || '',
+          username: user.username || '',
+          isAdmin: false,
+        };
       }
       return token;
     },
-    async session({ session, token }: { session: AppSession; token: AppJWT }) {
-      session.user = token.user as AppUser;
+    async session({ session, token }: { session: Session; token: AppJWT }) {
+      if (token.user) {
+        session.user = {
+          id: token.user.id,
+          name: token.user.name,
+          email: token.user.email,
+          username: token.user.username,
+          isAdmin: token.user.isAdmin,
+        };
+      }
       return session;
     },
   },
@@ -104,5 +104,5 @@ const authOptions: AuthOptions = {
 
 const handler = NextAuth(authOptions);
 
-// ✅ Only export GET and POST — not authOptions
+// Only export GET and POST
 export { handler as GET, handler as POST };
