@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { type AuthOptions, type SessionStrategy } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
 import { Session, User } from "next-auth";
@@ -23,7 +23,7 @@ interface AppSession extends Session {
 }
 
 // Do NOT export this - just use it inside the handler
-const authOptions = {
+const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -72,7 +72,7 @@ const authOptions = {
     signIn: "/login",
   },
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as SessionStrategy, // Explicitly type this as SessionStrategy
   },
   callbacks: {
     async jwt({ token, user }: { token: AppJWT; user?: User }) {
