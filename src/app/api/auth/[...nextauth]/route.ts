@@ -2,6 +2,7 @@ import NextAuth from "next-auth/next";
 import Credentials from "next-auth/providers/credentials";
 import { User, Session } from "next-auth";
 import { JWT } from "next-auth/jwt";
+import type { NextAuthOptions } from "next-auth";
 
 // Extend User type
 declare module "next-auth" {
@@ -23,7 +24,7 @@ interface AppJWT extends JWT {
   user?: AppUser;
 }
 
-export const authConfig = {
+export const authConfig: NextAuthOptions = {
   providers: [
     Credentials({
       name: "Credentials",
@@ -72,7 +73,7 @@ export const authConfig = {
     signIn: "/login",
   },
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as const, // Explicitly type as "jwt"
   },
   callbacks: {
     async jwt({ token, user }: { token: AppJWT; user?: User }) {
