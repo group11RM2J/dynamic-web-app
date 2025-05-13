@@ -1,7 +1,21 @@
 import NextAuth, { type AuthOptions, type SessionStrategy } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
-import { Session, User } from "next-auth";
+import { Session, JWT } from "next-auth";
+import { AdapterUser } from "next-auth/adapters";
+
+async function session({
+  session,
+  token,
+  user,
+}: {
+  session: Session;
+  token: JWT;
+  user: AdapterUser;
+} & { newSession: any; trigger: "update" }): Promise<Session> {
+  session.user = token.user as AppUser; // Ensure token.user is properly typed
+  return session;
+}
 
 // Define user type
 type AppUser = {
