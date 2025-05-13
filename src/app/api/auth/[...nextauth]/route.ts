@@ -1,11 +1,9 @@
-// src/app/api/auth/[...nextauth]/route.ts
-
-import NextAuth, { AuthOptions, SessionStrategy } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
 import { Session, User } from "next-auth";
 
-// Extend the default User type to include our custom fields
+// Extend the default User type to include custom fields
 declare module "next-auth" {
   interface User {
     username?: string;
@@ -27,7 +25,7 @@ interface AppJWT extends JWT {
   user?: AppUser;
 }
 
-export const authOptions: AuthOptions = {
+const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -39,7 +37,7 @@ export const authOptions: AuthOptions = {
         const res = await fetch("https://jsonplaceholder.typicode.com/users");
         const users: AppUser[] = await res.json();
 
-        // Admin credentials check
+        // Hardcoded admin user
         if (
           credentials?.email === "admin@admin.com" &&
           credentials.password === "admin123"
@@ -53,7 +51,7 @@ export const authOptions: AuthOptions = {
           };
         }
 
-        // Regular user login
+        // Authenticate based on mock users
         const user = users.find(
           (user) =>
             user.email === credentials?.email &&
@@ -78,7 +76,7 @@ export const authOptions: AuthOptions = {
     signIn: "/login",
   },
   session: {
-    strategy: "jwt" as SessionStrategy,
+    strategy: "jwt",
   },
   callbacks: {
     async jwt({ token, user }: { token: AppJWT; user?: User }) {
@@ -98,13 +96,3 @@ export const authOptions: AuthOptions = {
         session.user = {
           ...session.user,
           ...token.user,
-        };
-      }
-      return session;
-    },
-  },
-};
-
-const handler = NextAuth(authOptions);
-
-export { handler as GET, handler as POST };
